@@ -1,13 +1,30 @@
 odoo.define('google_marker_dynamic_color.MapRenderer', function (require) {
     'use strict';
 
-    var MapRenderer = require('web_google_maps.MapRenderer');
+    var MapRenderer = require('web_google_maps.MapRenderer').MapRenderer;
     var MARKER_COLORS = [
-        'aqua', 'blue-violet', 'blue', 'brown', 'deep-sky-blue', 'fuschia',
-        'gold', 'gray', 'green', 'indigo', 'lime-green', 'lime', 'maroon',
-        'navy', 'olive', 'orange', 'purple', 'red', 'teal', 'yellow'
+        'aqua',
+        'blue-violet',
+        'blue',
+        'brown',
+        'deep-sky-blue',
+        'fuschia',
+        'gold',
+        'gray',
+        'green',
+        'indigo',
+        'lime-green',
+        'lime',
+        'maroon',
+        'navy',
+        'olive',
+        'orange',
+        'purple',
+        'red',
+        'teal',
+        'yellow',
     ];
-    
+
     MapRenderer.include({
         _initLibraryProperties: function (params) {
             this._super.apply(this, arguments);
@@ -17,7 +34,11 @@ odoo.define('google_marker_dynamic_color.MapRenderer', function (require) {
             }
         },
         _createMarker: function (latLng, record, color) {
-            var color = (record.data[this.fieldMarkerColor] ? record.data[this.fieldMarkerColor] : color) || 'red';
+            var isGrouped = !!this.state.groupedBy.length;
+            color =
+                record.data[this.fieldMarkerColor] && !isGrouped
+                    ? record.data[this.fieldMarkerColor]
+                    : color || 'red';
             this._super(latLng, record, color);
         },
         _getGroupedMarkerColor: function () {
@@ -30,6 +51,11 @@ odoo.define('google_marker_dynamic_color.MapRenderer', function (require) {
             }
             return color;
         },
+        _getIconColorPath: function (color) {
+            if (MARKER_COLORS.indexOf(color) >= 0) {
+                return this.iconUrl + color + '.png';
+            }
+            return this._super(color);
+        },
     });
-
 });

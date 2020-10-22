@@ -5,7 +5,7 @@ odoo.define('web_google_maps.MapView', function (require) {
     var core = require('web.core');
 
     var MapModel = require('web_google_maps.MapModel');
-    var MapRenderer = require('web_google_maps.MapRenderer');
+    var MapRenderer = require('web_google_maps.MapRenderer').MapRenderer;
     var MapController = require('web_google_maps.MapController');
 
     var _lt = core._lt;
@@ -17,7 +17,7 @@ odoo.define('web_google_maps.MapView', function (require) {
         config: _.extend({}, BasicView.prototype.config, {
             Model: MapModel,
             Renderer: MapRenderer,
-            Controller: MapController
+            Controller: MapController,
         }),
         viewType: 'map',
         mobile_friendly: true,
@@ -28,21 +28,25 @@ odoo.define('web_google_maps.MapView', function (require) {
             var attrs = arch.attrs;
 
             var activeActions = this.controllerParams.activeActions;
-            var mode = arch.attrs.editable && !params.readonly ? "edit" : "readonly";
+            var mode = arch.attrs.editable && !params.readonly ? 'edit' : 'readonly';
+            var mapLibrary = attrs.library || 'geometry';
 
             this.loadParams.limit = this.loadParams.limit || 80;
             this.loadParams.openGroupByDefault = true;
             this.loadParams.type = 'list';
 
-            this.loadParams.groupBy = arch.attrs.default_group_by ? [arch.attrs.default_group_by] : (params.groupBy || []);
+            this.loadParams.groupBy = arch.attrs.default_group_by
+                ? [arch.attrs.default_group_by]
+                : params.groupBy || [];
 
             this.rendererParams.arch = arch;
-            this.rendererParams.mapLibrary = attrs.library;
 
-            if (attrs.library === 'drawing') {
+            this.rendererParams.mapLibrary = mapLibrary;
+
+            if (mapLibrary === 'drawing') {
                 this.rendererParams.drawingMode = attrs.drawing_mode;
                 this.rendererParams.drawingPath = attrs.drawing_path;
-            } else if (attrs.library === 'geometry') {
+            } else if (mapLibrary === 'geometry') {
                 var colors = this._setMarkersColor(attrs.colors);
                 this.rendererParams.markerColor = attrs.color;
                 this.rendererParams.markerColors = colors;
@@ -72,10 +76,10 @@ odoo.define('web_google_maps.MapView', function (require) {
                     color = pair[0];
                     expr = pair[1];
                     return [color, py.parse(py.tokenize(expr)), expr];
-                }).value();
-        }
+                })
+                .value();
+        },
     });
 
     return MapView;
-
 });
